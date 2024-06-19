@@ -1,17 +1,15 @@
-package com.best.common;
-
 import com.alibaba.fastjson.JSONObject;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class TokenUtils {
-  private static final String SIGN = StringUtils.TOKEN_SIGN;
+  // token的签名
+  private static final String SIGN = "sign";
   private static final String ENCRYPTION = "HS256";
-
-  public static String getToken(Integer id, String email, String key) throws Exception {
+  // 参数可以根据需求改
+  public static String getToken(Integer id, String email) throws Exception {
     JSONObject headJson = new JSONObject();
     JSONObject payloadJson = new JSONObject();
     headJson.put("typ", "JWT");
@@ -21,30 +19,25 @@ public class TokenUtils {
     String head = Base64.getEncoder().encodeToString(headJson.toString().getBytes());
     String payload = Base64.getEncoder().encodeToString(payloadJson.toString().getBytes());
     String message = head + payload;
-    return AESUtils.encrypt(key, head + "." + payload + "." + encodeHS256(message));
+    return key, head + "." + payload + "." + encodeHS256(message);
   }
 
-  public static boolean parseToken(String token, String key) throws Exception {
+  public static boolean parseToken(String token) throws Exception {
     try {
-      String decrypt = AESUtils.decrypt(key, token);
-      String[] parts = decrypt.split("\\.");
+      String[] parts = token.split("\\.");
       if (parts.length != 3) {
-        System.out.println("One False");
         return false;
       }
       String headBase64 = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
       String payloadBase64 = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
       JSONObject headJson = JSONObject.parseObject(headBase64);
       if (!ENCRYPTION.equals(headJson.get("alg")) || !"JWT".equals(headJson.get("typ"))) {
-        System.out.println("Two False");
         return false;
       }
       if (!encodeHS256(Base64.getEncoder().encodeToString(headBase64.getBytes()) + Base64.getEncoder().encodeToString(payloadBase64.getBytes())).equals(parts[2])) {
-        System.out.println("There False");
         return false;
       }
     } catch (Exception e) {
-      System.out.println("Four False");
       return false;
     }
     return true;
