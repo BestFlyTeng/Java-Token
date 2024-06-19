@@ -8,7 +8,7 @@ public class TokenUtils {
   // token的签名
   private static final String SIGN = "sign";
   private static final String ENCRYPTION = "HS256";
-  // 参数可以根据需求改
+  // 生成token,参数可以根据需求改
   public static String getToken(Integer id, String email) throws Exception {
     JSONObject headJson = new JSONObject();
     JSONObject payloadJson = new JSONObject();
@@ -21,7 +21,7 @@ public class TokenUtils {
     String message = head + payload;
     return key, head + "." + payload + "." + encodeHS256(message);
   }
-
+  // 验证token
   public static boolean parseToken(String token) throws Exception {
     try {
       String[] parts = token.split("\\.");
