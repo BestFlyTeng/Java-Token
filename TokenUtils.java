@@ -19,7 +19,7 @@ public class TokenUtils {
     String head = Base64.getEncoder().encodeToString(headJson.toString().getBytes());
     String payload = Base64.getEncoder().encodeToString(payloadJson.toString().getBytes());
     String message = head + payload;
-    return key, head + "." + payload + "." + encodeHS256(message);
+    return head + "." + payload + "." + encodeHS256(message);
   }
   // 验证token
   public static boolean parseToken(String token) throws Exception {
